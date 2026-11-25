@@ -88,7 +88,7 @@
     <div class="meta">
       <div><label for="date">Date</label><input type="date" id="date"></div>
       <div><label for="manager">Closing Manager</label><input id="manager" placeholder="Name"></div>
-      <div><label for="location">Location</label><input id="location" placeholder="Store / team"></div>
+      <div><label for="location">Location</label><input id="location" value="R040" placeholder="Store / team"></div>
     </div>
   </header>
 
@@ -214,6 +214,7 @@
       (d.back||[]).forEach(r=>addRow('back',r));
     }
     if(!$('date').value) $('date').value = new Date().toLocaleDateString('en-CA');
+    if(!$('location').value) $('location').value = 'R040';
     ['rec','saved','back'].forEach(t=>{ if(!$(templates[t].list).children.length) addRow(t); });
     update();
   }
@@ -274,6 +275,7 @@
     fields.forEach(f=>$(f).value='');
     ['rec','saved','back'].forEach(t=>{ $(templates[t].list).innerHTML=''; addRow(t); });
     $('date').value = new Date().toLocaleDateString('en-CA');
+    $('location').value = 'R040';
     update(); toast('Cleared');
   };
 
