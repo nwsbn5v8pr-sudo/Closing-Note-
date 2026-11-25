@@ -28,12 +28,15 @@
   .card .sub{color:var(--muted);font-size:14px;margin:0 0 16px}
   label{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;
         letter-spacing:.04em;margin-bottom:6px}
-  input,textarea{
+  input,textarea,select{
     width:100%;font:inherit;font-size:16px;color:var(--text);background:var(--soft);
     border:1px solid transparent;border-radius:12px;padding:11px 13px;outline:none;
     transition:border-color .15s, background .15s;
   }
-  input:focus,textarea:focus{border-color:var(--accent);background:#fff}
+  select{-webkit-appearance:none;appearance:none;cursor:pointer;padding-right:34px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%236e6e73' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 13px center}
+  input:focus,textarea:focus,select:focus{border-color:var(--accent);background:#fff}
   textarea{resize:vertical;min-height:84px}
   .field{margin-bottom:14px}
   .row{display:grid;gap:8px;align-items:center;margin-bottom:8px}
@@ -76,7 +79,7 @@
     body{background:#fff}
     .actions,.add,.icon-btn,.status{display:none!important}
     .card,.stat{box-shadow:none;border:1px solid var(--line)}
-    input,textarea{background:#fff;border:none;padding:4px 0}
+    input,textarea,select{background:#fff;border:none;padding:4px 0}
   }
 </style>
 </head>
@@ -87,7 +90,7 @@
     <p>End-of-day recap for the team.</p>
     <div class="meta">
       <div><label for="date">Date</label><input type="date" id="date"></div>
-      <div><label for="manager">Closing Manager</label><input id="manager" placeholder="Name"></div>
+      <div><label for="manager">Closing Manager</label><select id="manager"><option value="">Select</option><option>Ben</option><option>Bravo</option><option>Dan</option><option>CA</option><option>Drue</option><option>Shane</option><option>Sill</option><option>Lauren</option><option>Nate</option><option>Kimee</option><option>Jerome</option><option>Led</option><option>Corey</option><option>Jeff</option></select></div>
       <div><label for="location">Location</label><input id="location" value="R040" placeholder="Store / team"></div>
     </div>
   </header>
@@ -268,7 +271,7 @@
   document.querySelectorAll('[data-add]').forEach(b=>b.addEventListener('click',()=>{
     addRow(b.dataset.add).querySelector('input').focus(); update();
   }));
-  fields.forEach(f=>$(f).addEventListener('input',update));
+  fields.forEach(f=>{ $(f).addEventListener('input',update); $(f).addEventListener('change',update); });
   $('copyBtn').onclick = copy;
   $('shareBtn').onclick = share;
   $('clearBtn').onclick = ()=>{
