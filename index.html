@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Manager's Closing Note</title>
+<style>
+  :root{
+    --bg:#f5f5f7; --card:#ffffff; --text:#1d1d1f; --muted:#6e6e73;
+    --line:#d2d2d7; --soft:#f5f5f7; --accent:#0071e3; --accent-hover:#0077ed;
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased;
+    line-height:1.45; padding:env(safe-area-inset-top) 0 40px;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:32px 20px}
+  header{margin-bottom:24px}
+  header h1{font-size:34px;font-weight:700;letter-spacing:-.02em;margin:0 0 4px}
+  header p{color:var(--muted);margin:0;font-size:17px}
+  .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:20px}
+  .card{background:var(--card);border-radius:var(--radius);padding:22px;margin-bottom:16px;
+        box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .card h2{font-size:21px;font-weight:600;letter-spacing:-.01em;margin:0 0 4px}
+  .card .sub{color:var(--muted);font-size:14px;margin:0 0 16px}
+  label{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;
+        letter-spacing:.04em;margin-bottom:6px}
+  input,textarea{
+    width:100%;font:inherit;font-size:16px;color:var(--text);background:var(--soft);
+    border:1px solid transparent;border-radius:12px;padding:11px 13px;outline:none;
+    transition:border-color .15s, background .15s;
+  }
+  input:focus,textarea:focus{border-color:var(--accent);background:#fff}
+  textarea{resize:vertical;min-height:84px}
+  .field{margin-bottom:14px}
+  .row{display:grid;gap:8px;align-items:center;margin-bottom:8px}
+  .row.rec{grid-template-columns:1fr 2fr 36px}
+  .row.saved{grid-template-columns:2fr 90px 36px}
+  .row.back{grid-template-columns:2fr 90px 36px}
+  .head{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+  .icon-btn{width:36px;height:36px;border:none;border-radius:50%;background:transparent;color:var(--muted);
+            font-size:20px;cursor:pointer;line-height:1}
+  .icon-btn:hover{background:var(--soft);color:#d70015}
+  .add{background:none;border:none;color:var(--accent);font:inherit;font-size:15px;cursor:pointer;padding:6px 0}
+  .add:hover{text-decoration:underline}
+  .total{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line);
+         margin-top:12px;padding-top:12px}
+  .total span{color:var(--muted);font-size:15px}
+  .total strong{font-size:28px;font-weight:600;letter-spacing:-.02em}
+  .summary{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+  .stat{background:var(--card);border-radius:var(--radius);padding:18px 20px}
+  .stat span{display:block;color:var(--muted);font-size:13px}
+  .stat strong{font-size:32px;font-weight:600;letter-spacing:-.02em}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+  .btn{border:none;border-radius:980px;padding:11px 20px;font:inherit;font-size:15px;cursor:pointer}
+  .btn.primary{background:var(--accent);color:#fff}
+  .btn.primary:hover{background:var(--accent-hover)}
+  .btn.secondary{background:#e8e8ed;color:var(--text)}
+  .btn.secondary:hover{background:#dcdce1}
+  .btn.ghost{background:transparent;color:#d70015}
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);opacity:0;
+         background:rgba(29,29,31,.92);color:#fff;padding:10px 18px;border-radius:980px;font-size:14px;
+         transition:all .25s;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .status{color:var(--muted);font-size:13px;margin-top:10px}
+  @media (max-width:560px){
+    header h1{font-size:28px}
+    .row.rec{grid-template-columns:1fr 36px}
+    .row.rec .note{grid-column:1 / span 2;grid-row:2}
+    .head.hide-sm{display:none}
+  }
+  @media print{
+    body{background:#fff}
+    .actions,.add,.icon-btn,.status{display:none!important}
+    .card,.stat{box-shadow:none;border:1px solid var(--line)}
+    input,textarea{background:#fff;border:none;padding:4px 0}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Manager's Closing Note</h1>
+    <p>End-of-day recap for the team.</p>
+    <div class="meta">
+      <div><label for="date">Date</label><input type="date" id="date"></div>
+      <div><label for="manager">Closing Manager</label><input id="manager" placeholder="Name"></div>
+      <div><label for="location">Location</label><input id="location" placeholder="Store / team"></div>
+    </div>
+  </header>
+
+  <div class="summary">
+    <div class="stat"><span>Hours Removed</span><strong id="statSaved">0.0</strong></div>
+    <div class="stat"><span>Hours Recovered</span><strong id="statBack">0.0</strong></div>
+  </div>
+
+  <!-- Download Focus -->
+  <section class="card">
+    <h2>Download Focus</h2>
+    <p class="sub">What the team focused on today.</p>
+    <div class="field"><label for="focus">Focus</label>
+      <input id="focus" placeholder="e.g. Connecting with every customer at the door"></div>
+    <div class="field"><label for="focusResult">How it went</label>
+      <textarea id="focusResult" placeholder="Results, wins, and what to carry into tomorrow"></textarea></div>
+  </section>
+
+  <!-- Recognition -->
+  <section class="card">
+    <h2>Recognition of Download Focus</h2>
+    <p class="sub">Team members who brought the focus to life.</p>
+    <div class="row rec"><div class="head">Name</div><div class="head hide-sm">Recognition</div><div></div></div>
+    <div id="recList"></div>
+    <button class="add" data-add="rec">+ Add recognition</button>
+  </section>
+
+  <!-- Hours Removed -->
+  <section class="card">
+    <h2>Hours Removed</h2>
+    <p class="sub">Hours removed from the schedule today.</p>
+    <div class="row saved"><div class="head">Reason / Task</div><div class="head">Hours</div><div></div></div>
+    <div id="savedList"></div>
+    <button class="add" data-add="saved">+ Add entry</button>
+    <div class="total"><span>Total removed</span><strong id="totalSaved">0.0</strong></div>
+  </section>
+
+  <!-- Hours Recovered -->
+  <section class="card">
+    <h2>Hours Recovered</h2>
+    <p class="sub">Hours recovered to fill gaps.</p>
+    <div class="row back"><div class="head">Reason</div><div class="head">Hours</div><div></div></div>
+    <div id="backList"></div>
+    <button class="add" data-add="back">+ Add entry</button>
+    <div class="total"><span>Total recovered</span><strong id="totalBack">0.0</strong></div>
+  </section>
+
+  <section class="card">
+    <div class="actions" style="margin-top:0">
+      <button class="btn primary" id="copyBtn">Copy Note</button>
+      <button class="btn secondary" id="shareBtn">Share</button>
+      <button class="btn secondary" onclick="window.print()">Print / PDF</button>
+      <button class="btn ghost" id="clearBtn">Clear</button>
+    </div>
+    <div class="status" id="status">Saved on this device automatically.</div>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const KEY = 'managersClosingNote.v1';
+  const $ = id => document.getElementById(id);
+  const fields = ['date','manager','location','focus','focusResult'];
+
+  const templates = {
+    rec:   { list:'recList',   cls:'rec',   cols:[{k:'name',ph:'Name'},{k:'note',ph:'What they did',cls:'note'}] },
+    saved: { list:'savedList', cls:'saved', cols:[{k:'task',ph:'e.g. Early release, low traffic'},{k:'hours',ph:'0.0',num:true}] },
+    back:  { list:'backList',  cls:'back',  cols:[{k:'reason',ph:'e.g. Call-out coverage'},{k:'hours',ph:'0.0',num:true}] }
+  };
+
+  function addRow(type, data){
+    const t = templates[type];
+    const row = document.createElement('div');
+    row.className = 'row ' + t.cls;
+    t.cols.forEach(c=>{
+      const i = document.createElement('input');
+      i.dataset.k = c.k; i.placeholder = c.ph;
+      if(c.cls) i.className = c.cls;
+      if(c.num){ i.type='number'; i.step='0.25'; i.min='0'; i.inputMode='decimal'; }
+      i.value = (data && data[c.k]) || '';
+      i.addEventListener('input', update);
+      row.appendChild(i);
+    });
+    const del = document.createElement('button');
+    del.className='icon-btn'; del.setAttribute('aria-label','Remove'); del.textContent='×';
+    del.onclick = ()=>{ row.remove(); update(); };
+    row.appendChild(del);
+    $(t.list).appendChild(row);
+    return row;
+  }
+
+  function readRows(type){
+    return [...$(templates[type].list).children].map(r=>{
+      const o={}; r.querySelectorAll('input').forEach(i=>o[i.dataset.k]=i.value.trim()); return o;
+    });
+  }
+  const sum = rows => rows.reduce((a,r)=>a+(parseFloat(r.hours)||0),0);
+  const fmt = n => (Math.round(n*100)/100).toFixed(n%1 && (n*100)%10 ? 2 : 1);
+
+  function collect(){
+    const d={}; fields.forEach(f=>d[f]=$(f).value);
+    d.rec=readRows('rec'); d.saved=readRows('saved'); d.back=readRows('back');
+    return d;
+  }
+
+  function update(){
+    const d = collect();
+    const s = sum(d.saved), b = sum(d.back);
+    $('totalSaved').textContent = $('statSaved').textContent = fmt(s);
+    $('totalBack').textContent  = $('statBack').textContent  = fmt(b);
+    try{ localStorage.setItem(KEY, JSON.stringify(d)); $('status').textContent='Saved on this device automatically.'; }
+    catch(e){ $('status').textContent='Auto-save unavailable here. Use Copy Note before closing.'; }
+  }
+
+  function load(){
+    let d=null;
+    try{ d = JSON.parse(localStorage.getItem(KEY)); }catch(e){}
+    if(d){
+      fields.forEach(f=>{ if(d[f]!=null) $(f).value=d[f]; });
+      (d.rec||[]).forEach(r=>addRow('rec',r));
+      (d.saved||[]).forEach(r=>addRow('saved',r));
+      (d.back||[]).forEach(r=>addRow('back',r));
+    }
+    if(!$('date').value) $('date').value = new Date().toLocaleDateString('en-CA');
+    ['rec','saved','back'].forEach(t=>{ if(!$(templates[t].list).children.length) addRow(t); });
+    update();
+  }
+
+  function toText(){
+    const d = collect();
+    const date = d.date ? new Date(d.date+'T00:00').toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'}) : '';
+    const L = [];
+    L.push("MANAGER'S CLOSING NOTE");
+    L.push([date, d.location].filter(Boolean).join(' · '));
+    if(d.manager) L.push('Closing Manager: ' + d.manager);
+    L.push('');
+    L.push('DOWNLOAD FOCUS');
+    L.push(d.focus || '—');
+    if(d.focusResult) L.push(d.focusResult);
+    L.push('');
+    L.push('RECOGNITION OF DOWNLOAD FOCUS');
+    const rec = d.rec.filter(r=>r.name||r.note);
+    L.push(...(rec.length ? rec.map(r=>'• ' + [r.name,r.note].filter(Boolean).join(' — ')) : ['—']));
+    L.push('');
+    L.push('HOURS REMOVED: ' + fmt(sum(d.saved)));
+    d.saved.filter(r=>r.task||r.hours).forEach(r=>L.push('• ' + (r.task||'—') + (r.hours?' — '+r.hours+' hrs':'')));
+    L.push('');
+    L.push('HOURS RECOVERED: ' + fmt(sum(d.back)));
+    d.back.filter(r=>r.reason||r.hours).forEach(r=>L.push('• ' + (r.reason||'—') + (r.hours?' — '+r.hours+' hrs':'')));
+    return L.join('\n');
+  }
+
+  function toast(msg){
+    const t=$('toast'); t.textContent=msg; t.classList.add('show');
+    clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),1800);
+  }
+
+  async function copy(){
+    const text = toText();
+    try{ await navigator.clipboard.writeText(text); toast('Copied to clipboard'); }
+    catch(e){
+      const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta);
+      ta.select(); try{ document.execCommand('copy'); toast('Copied to clipboard'); }catch(_){ toast('Copy not available'); }
+      ta.remove();
+    }
+  }
+
+  async function share(){
+    const text = toText();
+    if(navigator.share){
+      try{ await navigator.share({title:"Manager's Closing Note", text}); }catch(e){}
+    } else { copy(); }
+  }
+
+  document.querySelectorAll('[data-add]').forEach(b=>b.addEventListener('click',()=>{
+    addRow(b.dataset.add).querySelector('input').focus(); update();
+  }));
+  fields.forEach(f=>$(f).addEventListener('input',update));
+  $('copyBtn').onclick = copy;
+  $('shareBtn').onclick = share;
+  $('clearBtn').onclick = ()=>{
+    fields.forEach(f=>$(f).value='');
+    ['rec','saved','back'].forEach(t=>{ $(templates[t].list).innerHTML=''; addRow(t); });
+    $('date').value = new Date().toLocaleDateString('en-CA');
+    update(); toast('Cleared');
+  };
+
+  load();
+})();
+</script>
+</body>
+</html>
