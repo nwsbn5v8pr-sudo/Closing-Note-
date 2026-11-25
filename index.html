@@ -100,25 +100,6 @@
     <div class="stat"><span>Hours Recovered</span><strong id="statBack">0.0</strong></div>
   </div>
 
-  <!-- Download Focus -->
-  <section class="card">
-    <h2>Download Focus</h2>
-    <p class="sub">What the team focused on today.</p>
-    <div class="field"><label for="focus">Focus</label>
-      <input id="focus" placeholder="e.g. Connecting with every customer at the door"></div>
-    <div class="field"><label for="focusResult">How it went</label>
-      <textarea id="focusResult" placeholder="Results, wins, and what to carry into tomorrow"></textarea></div>
-  </section>
-
-  <!-- Recognition -->
-  <section class="card">
-    <h2>Recognition of Download Focus</h2>
-    <p class="sub">Team members who brought the focus to life.</p>
-    <div class="row rec"><div class="head">Name</div><div class="head hide-sm">Recognition</div><div></div></div>
-    <div id="recList"></div>
-    <button class="add" data-add="rec">+ Add recognition</button>
-  </section>
-
   <!-- Hours Removed -->
   <section class="card">
     <h2>Hours Removed</h2>
@@ -137,6 +118,25 @@
     <div id="backList"></div>
     <button class="add" data-add="back">+ Add entry</button>
     <div class="total"><span>Total recovered</span><strong id="totalBack">0.0</strong></div>
+  </section>
+
+  <!-- Download Focus -->
+  <section class="card">
+    <h2>Download Focus</h2>
+    <p class="sub">What the team focused on today.</p>
+    <div class="field"><label for="focus">Focus</label>
+      <input id="focus" placeholder="e.g. Connecting with every customer at the door"></div>
+    <div class="field"><label for="focusResult">How it went</label>
+      <textarea id="focusResult" placeholder="Results, wins, and what to carry into tomorrow"></textarea></div>
+  </section>
+
+  <!-- Recognition -->
+  <section class="card">
+    <h2>Recognition of Download Focus</h2>
+    <p class="sub">Team members who brought the focus to life.</p>
+    <div class="row rec"><div class="head">Name</div><div class="head hide-sm">Recognition</div><div></div></div>
+    <div id="recList"></div>
+    <button class="add" data-add="rec">+ Add recognition</button>
   </section>
 
   <section class="card">
@@ -230,6 +230,12 @@
     L.push([date, d.location].filter(Boolean).join(' · '));
     if(d.manager) L.push('Closing Manager: ' + d.manager);
     L.push('');
+    L.push('HOURS REMOVED: ' + fmt(sum(d.saved)));
+    d.saved.filter(r=>r.task||r.hours).forEach(r=>L.push('• ' + (r.task||'—') + (r.hours?' — '+r.hours+' hrs':'')));
+    L.push('');
+    L.push('HOURS RECOVERED: ' + fmt(sum(d.back)));
+    d.back.filter(r=>r.reason||r.hours).forEach(r=>L.push('• ' + (r.reason||'—') + (r.hours?' — '+r.hours+' hrs':'')));
+    L.push('');
     L.push('DOWNLOAD FOCUS');
     L.push(d.focus || '—');
     if(d.focusResult) L.push(d.focusResult);
@@ -237,12 +243,6 @@
     L.push('RECOGNITION OF DOWNLOAD FOCUS');
     const rec = d.rec.filter(r=>r.name||r.note);
     L.push(...(rec.length ? rec.map(r=>'• ' + [r.name,r.note].filter(Boolean).join(' — ')) : ['—']));
-    L.push('');
-    L.push('HOURS REMOVED: ' + fmt(sum(d.saved)));
-    d.saved.filter(r=>r.task||r.hours).forEach(r=>L.push('• ' + (r.task||'—') + (r.hours?' — '+r.hours+' hrs':'')));
-    L.push('');
-    L.push('HOURS RECOVERED: ' + fmt(sum(d.back)));
-    d.back.filter(r=>r.reason||r.hours).forEach(r=>L.push('• ' + (r.reason||'—') + (r.hours?' — '+r.hours+' hrs':'')));
     return L.join('\n');
   }
 
