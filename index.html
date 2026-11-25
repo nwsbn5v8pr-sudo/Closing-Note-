@@ -159,7 +159,7 @@
 
   const templates = {
     rec:   { list:'recList',   cls:'rec',   cols:[{k:'name',ph:'Name'},{k:'note',ph:'What they did',cls:'note'}] },
-    saved: { list:'savedList', cls:'saved', cols:[{k:'task',ph:'e.g. Early release, low traffic'},{k:'hours',ph:'0.0',num:true}] },
+    saved: { list:'savedList', cls:'saved', cols:[{k:'task',ph:'Select',options:['Call-Out','Early-Out','Late-In','FTN']},{k:'hours',ph:'0.0',num:true}] },
     back:  { list:'backList',  cls:'back',  cols:[{k:'reason',ph:'e.g. Call-out coverage'},{k:'hours',ph:'0.0',num:true}] }
   };
 
@@ -168,8 +168,17 @@
     const row = document.createElement('div');
     row.className = 'row ' + t.cls;
     t.cols.forEach(c=>{
-      const i = document.createElement('input');
-      i.dataset.k = c.k; i.placeholder = c.ph;
+      let i;
+      if(c.options){
+        i = document.createElement('select');
+        i.appendChild(new Option(c.ph,''));
+        c.options.forEach(o=>i.appendChild(new Option(o,o)));
+        i.addEventListener('change', update);
+      } else {
+        i = document.createElement('input');
+        i.placeholder = c.ph;
+      }
+      i.dataset.k = c.k;
       if(c.cls) i.className = c.cls;
       if(c.num){ i.type='number'; i.step='0.25'; i.min='0'; i.inputMode='decimal'; }
       i.value = (data && data[c.k]) || '';
@@ -186,7 +195,7 @@
 
   function readRows(type){
     return [...$(templates[type].list).children].map(r=>{
-      const o={}; r.querySelectorAll('input').forEach(i=>o[i.dataset.k]=i.value.trim()); return o;
+      const o={}; r.querySelectorAll('input,select').forEach(i=>o[i.dataset.k]=i.value.trim()); return o;
     });
   }
   const sum = rows => rows.reduce((a,r)=>a+(parseFloat(r.hours)||0),0);
@@ -269,7 +278,7 @@
   }
 
   document.querySelectorAll('[data-add]').forEach(b=>b.addEventListener('click',()=>{
-    addRow(b.dataset.add).querySelector('input').focus(); update();
+    addRow(b.dataset.add).querySelector('input,select').focus(); update();
   }));
   fields.forEach(f=>{ $(f).addEventListener('input',update); $(f).addEventListener('change',update); });
   $('copyBtn').onclick = copy;
